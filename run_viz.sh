@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
-export PATH=/usr/bin:/usr/local/bin:$PATH
-export PYTHONPATH="/root/fMRI/mamba_bilstm_scz:$PYTHONPATH"
-cd /root/fMRI/mamba_bilstm_scz
-/usr/bin/python3 visualize_results.py
+set -euo pipefail
+
+# Determine repository root relative to script location
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+export PYTHONUNBUFFERED=1
+export PYTHONPATH="$SCRIPT_DIR:${PYTHONPATH:-}"
+
+mkdir -p "$SCRIPT_DIR/results/figures"
+
+echo "=========================================================================="
+echo "Generating Publication Figures from Cross-Validation Metrics"
+echo "Directory: $SCRIPT_DIR"
+echo "=========================================================================="
+
+python3 visualize_results.py "$@"
