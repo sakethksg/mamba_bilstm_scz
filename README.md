@@ -188,21 +188,6 @@ focal_loss_gamma = 1.5          # Focal loss focusing parameter
 
 ---
 
-## Citation
-
-If you use this codebase or methodology in your research, please cite:
-
-```bibtex
-@article{mamba_bilstm_scz_2026,
-  title={Connectome-Enriched Spatio-Temporal Mamba-BiLSTM for Schizophrenia Classification from Resting-State fMRI},
-  author={Antigravity Team and Contributors},
-  journal={arXiv preprint},
-  year={2026},
-  url={https://github.com/sakethksg/mamba_bilstm_scz}
-}
-```
-
----
 
 ## License & Data Acknowledgments
 
