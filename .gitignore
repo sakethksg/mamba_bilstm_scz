@@ -81,9 +81,9 @@ ehthumbs.db
 Thumbs.db
 desktop.ini
 
-# Model checkpoints & weights
-checkpoints/
-*.pt
+# Model checkpoints & weights (keep trained 5-fold models tracked)
+!checkpoints/
+!checkpoints/*.pt
 *.pth
 *.ckpt
 *.bin
