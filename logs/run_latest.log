@@ -1,0 +1,122 @@
+[11:36:17] INFO: ================================================================================
+[11:36:17] INFO:    HIGH-SPEED ENHANCED AUGMENTATION MAMBA-BiLSTM SCZ PIPELINE
+[11:36:17] INFO:    (Temporal Mamba SSM + Temporal BiLSTM + Spatial BiLSTM | NO GAT)
+[11:36:17] INFO:    Dense Windows (S=15), Focal Loss, Amplitude Scaling, & Connectome Noise
+[11:36:17] INFO: ================================================================================
+[11:36:17] INFO: Start time: 2026-10-23 11:36:17
+[11:36:17] INFO: Log path: /root/fMRI/mamba_bilstm_scz/logs/mamba_bilstm_training_20261023_113617.log
+[11:36:17] INFO: Target Compute Device: cuda:0 (NVIDIA H100 PCIe)
+[11:36:17] INFO: Loaded 71 participants (All 71 subjects included (HC: 25, SCZ: 46))
+[11:36:17] INFO: Slicing ROI timeseries into overlapping temporal windows (W=100 TRs, Stride=12)...
+[11:36:25] INFO: Dataset summary: 71 subjects | HC=25 | SCZ=46
+[11:36:25] INFO: Sliding Window Augmentation: Generated 1491 window tensors (~17x multiplier)
+[11:36:25] INFO: Model Parameters: 194,564 trainable / 194,564 total
+[11:36:25] INFO: 
+================================================================================
+[11:36:25] INFO: Starting 5-Fold Stratified Cross Validation (Partitioned by Subject)
+[11:36:25] INFO: ================================================================================
+[11:36:25] INFO: 
+>>> [Fold 1/5] Train Subjects: 56 (1176 windows) | Val Subjects: 15 (315 windows)
+[11:36:55] INFO:   * [Best Ep 001/055] Val Acc: 0.333 | Bal Acc: 0.500 | AUC: 0.800 | Spec: 1.000 | Sens: 0.000 | Cal Acc: 0.733 (Thresh: 0.25)
+[11:37:22] INFO:   * [Best Ep 002/055] Val Acc: 0.600 | Bal Acc: 0.700 | AUC: 0.860 | Spec: 1.000 | Sens: 0.400 | Cal Acc: 0.733 (Thresh: 0.49)
+[11:39:34] INFO:   * [Best Ep 007/055] Val Acc: 0.733 | Bal Acc: 0.800 | AUC: 0.820 | Spec: 1.000 | Sens: 0.600 | Cal Acc: 0.733 (Thresh: 0.51)
+[11:40:00] INFO:   * [Best Ep 008/055] Val Acc: 0.800 | Bal Acc: 0.800 | AUC: 0.920 | Spec: 0.800 | Sens: 0.800 | Cal Acc: 0.867 (Thresh: 0.50)
+[11:40:26] INFO:   * [Best Ep 009/055] Val Acc: 0.933 | Bal Acc: 0.950 | AUC: 0.980 | Spec: 1.000 | Sens: 0.900 | Cal Acc: 0.933 (Thresh: 0.50)
+[11:40:52] INFO:   * [Best Ep 010/055] Val Acc: 1.000 | Bal Acc: 1.000 | AUC: 1.000 | Spec: 1.000 | Sens: 1.000 | Cal Acc: 1.000 (Thresh: 0.57)
+[11:40:52] INFO:   [Epoch 010/055] Loss: 0.2517 | WinAcc: 0.709 | LR: 3.44e-04 | Val Acc: 1.000 | Bal: 1.000 | AUC: 1.000
+[11:45:17] INFO:   [Epoch 020/055] Loss: 0.1650 | WinAcc: 0.878 | LR: 2.84e-04 | Val Acc: 0.933 | Bal: 0.900 | AUC: 0.980
+[11:49:40] INFO:   [Epoch 030/055] Loss: 0.1236 | WinAcc: 0.866 | LR: 1.81e-04 | Val Acc: 0.933 | Bal: 0.900 | AUC: 0.960
+[11:50:33] INFO:   Early stopping at epoch 32 (no improvement for 22 epochs)
+[11:50:36] INFO:   >>> [Fold 1 Best Subject-Level Performance] Accuracy: 1.000 | Balanced Accuracy: 1.000 | ROC-AUC: 1.000 | Specificity: 1.000 | Sensitivity: 1.000 | Calibrated Acc: 1.000 (850.7s)
+[11:50:36] INFO: 
+>>> [Fold 2/5] Train Subjects: 57 (1197 windows) | Val Subjects: 14 (294 windows)
+[11:51:04] INFO:   * [Best Ep 001/055] Val Acc: 0.643 | Bal Acc: 0.500 | AUC: 0.578 | Spec: 0.000 | Sens: 1.000 | Cal Acc: 0.714 (Thresh: 0.72)
+[11:51:31] INFO:   * [Best Ep 002/055] Val Acc: 0.643 | Bal Acc: 0.500 | AUC: 0.600 | Spec: 0.000 | Sens: 1.000 | Cal Acc: 0.714 (Thresh: 0.68)
+[11:51:58] INFO:   * [Best Ep 003/055] Val Acc: 0.643 | Bal Acc: 0.500 | AUC: 0.822 | Spec: 0.000 | Sens: 1.000 | Cal Acc: 0.857 (Thresh: 0.67)
+[11:52:25] INFO:   * [Best Ep 004/055] Val Acc: 0.643 | Bal Acc: 0.500 | AUC: 0.933 | Spec: 0.000 | Sens: 1.000 | Cal Acc: 0.929 (Thresh: 0.60)
+[11:52:51] INFO:   * [Best Ep 005/055] Val Acc: 0.786 | Bal Acc: 0.700 | AUC: 0.867 | Spec: 0.400 | Sens: 1.000 | Cal Acc: 0.786 (Thresh: 0.55)
+[11:53:18] INFO:   * [Best Ep 006/055] Val Acc: 0.929 | Bal Acc: 0.900 | AUC: 0.978 | Spec: 0.800 | Sens: 1.000 | Cal Acc: 0.929 (Thresh: 0.58)
+[11:55:06] INFO:   [Epoch 010/055] Loss: 0.2000 | WinAcc: 0.830 | LR: 3.44e-04 | Val Acc: 0.786 | Bal: 0.744 | AUC: 0.711
+[11:59:35] INFO:   [Epoch 020/055] Loss: 0.1079 | WinAcc: 0.898 | LR: 2.84e-04 | Val Acc: 0.714 | Bal: 0.689 | AUC: 0.733
+[12:03:12] INFO:   Early stopping at epoch 28 (no improvement for 22 epochs)
+[12:03:14] INFO:   >>> [Fold 2 Best Subject-Level Performance] Accuracy: 0.929 | Balanced Accuracy: 0.900 | ROC-AUC: 0.978 | Specificity: 0.800 | Sensitivity: 1.000 | Calibrated Acc: 0.929 (757.7s)
+[12:03:14] INFO: 
+>>> [Fold 3/5] Train Subjects: 57 (1197 windows) | Val Subjects: 14 (294 windows)
+[12:03:42] INFO:   * [Best Ep 001/055] Val Acc: 0.357 | Bal Acc: 0.500 | AUC: 0.733 | Spec: 1.000 | Sens: 0.000 | Cal Acc: 0.786 (Thresh: 0.36)
+[12:08:03] INFO:   [Epoch 010/055] Loss: 0.1644 | WinAcc: 0.829 | LR: 3.44e-04 | Val Acc: 0.429 | Bal: 0.333 | AUC: 0.511
+[12:14:05] INFO:   [Epoch 020/055] Loss: 0.1426 | WinAcc: 0.823 | LR: 2.84e-04 | Val Acc: 0.429 | Bal: 0.333 | AUC: 0.489
+[12:18:19] INFO:   Early stopping at epoch 27 (no improvement for 22 epochs)
+[12:18:23] INFO:   >>> [Fold 3 Best Subject-Level Performance] Accuracy: 0.357 | Balanced Accuracy: 0.500 | ROC-AUC: 0.733 | Specificity: 1.000 | Sensitivity: 0.000 | Calibrated Acc: 0.786 (908.8s)
+[12:18:23] INFO: 
+>>> [Fold 4/5] Train Subjects: 57 (1197 windows) | Val Subjects: 14 (294 windows)
+[12:19:01] INFO:   * [Best Ep 001/055] Val Acc: 0.643 | Bal Acc: 0.500 | AUC: 0.467 | Spec: 0.000 | Sens: 1.000 | Cal Acc: 0.714 (Thresh: 0.52)
+[12:19:37] INFO:   * [Best Ep 002/055] Val Acc: 0.643 | Bal Acc: 0.500 | AUC: 0.667 | Spec: 0.000 | Sens: 1.000 | Cal Acc: 0.786 (Thresh: 0.64)
+[12:20:14] INFO:   * [Best Ep 003/055] Val Acc: 0.643 | Bal Acc: 0.500 | AUC: 0.689 | Spec: 0.000 | Sens: 1.000 | Cal Acc: 0.857 (Thresh: 0.64)
+[12:24:31] INFO:   * [Best Ep 010/055] Val Acc: 0.714 | Bal Acc: 0.689 | AUC: 0.533 | Spec: 0.600 | Sens: 0.778 | Cal Acc: 0.714 (Thresh: 0.75)
+[12:24:31] INFO:   [Epoch 010/055] Loss: 0.1731 | WinAcc: 0.812 | LR: 3.44e-04 | Val Acc: 0.714 | Bal: 0.689 | AUC: 0.533
+[12:30:37] INFO:   [Epoch 020/055] Loss: 0.1403 | WinAcc: 0.869 | LR: 2.84e-04 | Val Acc: 0.643 | Bal: 0.589 | AUC: 0.533
+[12:36:41] INFO:   [Epoch 030/055] Loss: 0.1167 | WinAcc: 0.862 | LR: 1.81e-04 | Val Acc: 0.643 | Bal: 0.589 | AUC: 0.533
+[12:37:56] INFO:   Early stopping at epoch 32 (no improvement for 22 epochs)
+[12:38:00] INFO:   >>> [Fold 4 Best Subject-Level Performance] Accuracy: 0.714 | Balanced Accuracy: 0.689 | ROC-AUC: 0.533 | Specificity: 0.600 | Sensitivity: 0.778 | Calibrated Acc: 0.714 (1176.9s)
+[12:38:00] INFO: 
+>>> [Fold 5/5] Train Subjects: 57 (1197 windows) | Val Subjects: 14 (294 windows)
+[12:38:40] INFO:   * [Best Ep 001/055] Val Acc: 0.643 | Bal Acc: 0.500 | AUC: 0.222 | Spec: 0.000 | Sens: 1.000 | Cal Acc: 0.643 (Thresh: 0.75)
+[12:39:58] INFO:   * [Best Ep 003/055] Val Acc: 0.643 | Bal Acc: 0.500 | AUC: 0.467 | Spec: 0.000 | Sens: 1.000 | Cal Acc: 0.643 (Thresh: 0.68)
+[12:40:37] INFO:   * [Best Ep 004/055] Val Acc: 0.643 | Bal Acc: 0.500 | AUC: 0.733 | Spec: 0.000 | Sens: 1.000 | Cal Acc: 0.786 (Thresh: 0.65)
+[12:41:17] INFO:   * [Best Ep 005/055] Val Acc: 0.643 | Bal Acc: 0.500 | AUC: 0.844 | Spec: 0.000 | Sens: 1.000 | Cal Acc: 0.857 (Thresh: 0.60)
+[12:41:55] INFO:   * [Best Ep 006/055] Val Acc: 0.714 | Bal Acc: 0.644 | AUC: 0.911 | Spec: 0.400 | Sens: 0.889 | Cal Acc: 0.857 (Thresh: 0.56)
+[12:42:34] INFO:   * [Best Ep 007/055] Val Acc: 0.786 | Bal Acc: 0.744 | AUC: 0.933 | Spec: 0.600 | Sens: 0.889 | Cal Acc: 0.929 (Thresh: 0.59)
+[12:43:13] INFO:   * [Best Ep 008/055] Val Acc: 0.857 | Bal Acc: 0.844 | AUC: 0.889 | Spec: 0.800 | Sens: 0.889 | Cal Acc: 0.929 (Thresh: 0.66)
+[12:44:32] INFO:   [Epoch 010/055] Loss: 0.1825 | WinAcc: 0.809 | LR: 3.44e-04 | Val Acc: 0.786 | Bal: 0.744 | AUC: 0.844
+[12:51:06] INFO:   [Epoch 020/055] Loss: 0.1042 | WinAcc: 0.859 | LR: 2.84e-04 | Val Acc: 0.786 | Bal: 0.744 | AUC: 0.689
+[12:57:38] INFO:   [Epoch 030/055] Loss: 0.1029 | WinAcc: 0.902 | LR: 1.81e-04 | Val Acc: 0.786 | Bal: 0.744 | AUC: 0.711
+[12:57:38] INFO:   Early stopping at epoch 30 (no improvement for 22 epochs)
+[12:57:41] INFO:   >>> [Fold 5 Best Subject-Level Performance] Accuracy: 0.857 | Balanced Accuracy: 0.844 | ROC-AUC: 0.889 | Specificity: 0.800 | Sensitivity: 0.889 | Calibrated Acc: 0.929 (1181.6s)
+[12:57:41] INFO: 
+================================================================================
+[12:57:41] INFO:    FINAL CROSS-VALIDATION SUBJECT-LEVEL SUMMARY (Connectome-Enriched Mamba-BiLSTM)
+[12:57:41] INFO: ================================================================================
+[12:57:41] INFO: 
+================================================================================
+ ENHANCED AUGMENTATION MAMBA-BiLSTM BENCHMARK (All Subjects N=71)
+================================================================================
+ Architecture: Temporal Mamba SSM + Temporal BiLSTM + Gated dFC + Spatial BiLSTM (NO GAT)
+ Total Pipeline Training Time: 4875.7s (81.26 min)
+
+ ─── 5-Fold Cross-Validation Metrics (Mean ± Std) ───
+ • Subject Standard Accuracy: 0.7714 ± 0.2277
+ • Subject Balanced Accuracy: 0.7867 ± 0.1752
+ • Subject ROC-AUC          : 0.8267 ± 0.1741
+ • Subject Specificity (HC) : 0.8400 ± 0.1497
+ • Subject Sensitivity (SCZ): 0.7333 ± 0.3758
+ • Subject Precision        : 0.7133 ± 0.3635
+ • Subject F1-Score         : 0.7228 ± 0.3689
+ • Calibrated Accuracy      : 0.8714 ± 0.1050
+ • Calibrated Balanced Acc  : 0.8822 ± 0.1108
+
+ ─── Pooled Out-of-Fold (OOF) Cohort Evaluation (N=71) ───
+ • Standard Thresh (0.5) Acc: 0.7746 (55/71)
+ • Standard Thresh (0.5) Bal: 0.7896
+ • Overall OOF ROC-AUC      : 0.7800
+ • Optimal Operating Thresh : 0.5683
+ • Calibrated OOF Accuracy  : 0.7746 (55/71)
+ • Calibrated OOF Bal Acc   : 0.7987
+ • Calibrated Specificity   : 0.8800 (22/25 HC)
+ • Calibrated Sensitivity   : 0.7174 (33/46 SCZ)
+ • Calibrated Precision     : 0.9167
+ • Calibrated F1-Score      : 0.8049
+================================================================================
+
+[12:57:41] INFO: Results saved to /root/fMRI/mamba_bilstm_scz/results/cv_metrics.json and /root/fMRI/mamba_bilstm_scz/results/summary.txt
+[12:57:42] INFO: 
+Generating publication figures in results/figures/...
+Loaded 71 subjects for visualization.
+Saved: /root/fMRI/mamba_bilstm_scz/results/figures/fig1_cv_performance_comparison.png
+Saved: /root/fMRI/mamba_bilstm_scz/results/figures/fig2_roc_curves.png
+Saved: /root/fMRI/mamba_bilstm_scz/results/figures/fig3_confusion_matrices.png
+Saved: /root/fMRI/mamba_bilstm_scz/results/figures/fig4_subject_diagnostic_probabilities.png
+Saved: /root/fMRI/mamba_bilstm_scz/results/figures/fig5_training_convergence.png
+Saved: /root/fMRI/mamba_bilstm_scz/results/figures/fig6_connectome_topological_biomarkers.png
+All 6 publication figures successfully generated in: /root/fMRI/mamba_bilstm_scz/results/figures
+[12:57:46] INFO: All 6 figures successfully updated!
+[12:57:46] INFO: Pipeline completed successfully!

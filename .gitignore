@@ -90,9 +90,11 @@ checkpoints/
 *.onnx
 *.safetensors
 
-# Training logs & experiment outputs
-logs/
+# Training logs & experiment outputs (keep run_latest.log tracked)
+logs/*
+!logs/run_latest.log
 *.log
+!logs/run_latest.log
 wandb/
 runs/
 events.out.tfevents.*
