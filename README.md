@@ -3,10 +3,13 @@
 [![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Package Manager](https://img.shields.io/badge/Managed%20by-uv-purple.svg)](https://github.com/astral-sh/uv)
 [![Framework](https://img.shields.io/badge/PyTorch-2.0%2B-EE4C2C.svg)](https://pytorch.org/)
+[![Neuroimaging](https://img.shields.io/badge/fMRIPrep-v23.x-orange.svg)](https://fmriprep.org/)
 [![Dataset](https://img.shields.io/badge/OpenNeuro-ds004302-informational.svg)](https://openneuro.org/datasets/ds004302)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 Official implementation of the **Connectome-Enriched Spatio-Temporal Mamba-BiLSTM** network for automated schizophrenia (SCZ) classification and neural biomarker discovery from resting-state functional Magnetic Resonance Imaging (rs-fMRI) blood-oxygen-level-dependent (BOLD) timeseries.
+
+This repository provides an end-to-end scientific pipeline spanning **raw data preprocessing**, **signal quality assurance**, **nuisance postprocessing and parcellation**, and **deep learning classification**.
 
 ---
 
@@ -27,6 +30,36 @@ This repository provides a graph-free, spatio-temporal deep learning framework t
 - **Dual-Stage Spatio-Temporal Modeling**: Integrates continuous-time linear state-space sequence modeling with bidirectional recurrent context over temporal dynamics and spatial parcel sequences.
 - **Strict Subject-Level Cross-Validation**: Validated using 5-fold stratified cross-validation on all $N=71$ clinical participants with zero cross-fold window leakage.
 - **Interpretable Connectome Biomarkers**: Includes automated biomarker extraction across Yeo 7 functional networks (Visual, Somatomotor, Dorsal Attention, Salience/Ventral Attention, Limbic, Control, Default Mode).
+- **Integrated Neuroimaging Workflow**: Complete pipeline containing NUMA-aware multi-subject preprocessing, signal quality assurance (tSNR, FD, DVARS), and standardized nuisance denoising with Schaefer-200 parcellation.
+
+---
+
+## End-to-End Pipeline Architecture
+
+```
+Raw BIDS Neuroimaging (ds004302)
+  │
+  ├── [1] Preprocessing (`preprocessing/`)
+  │     ├── NUMA-aware parallel fMRIPrep execution across dual sockets
+  │     ├── Anatomical: N4 bias correction, OASIS skull stripping, FSL FAST, ANTs MNI normalization
+  │     └── Functional: 5 dummy volume discard, FSL MCFLIRT (6 DOF), AFNI 3dTshift, FSL FLIRT BBR
+  │
+  ├── [2] Quality Assurance (`quality_assurance/`)
+  │     ├── Temporal and Spatial SNR estimation (tSNR = μ / σ)
+  │     ├── Framewise Displacement (FD) & DVARS head motion quantification
+  │     └── Diagnostic distribution plots, carpet plots, and normality verification
+  │
+  ├── [3] Postprocessing & Denoising (`postprocessing/`)
+  │     ├── 24-parameter Friston motion regressors + aCompCor (WM & CSF top 5 components)
+  │     ├── High-pass cosine filter (fc = 0.008 Hz, 128 s cutoff) & polynomial detrending
+  │     ├── 5 mm FWHM spatial smoothing & intensity normalization
+  │     └── Schaefer-200 cortical parcellation across Yeo 7 functional networks
+  │
+  └── [4] Deep Learning Classification (Root)
+        ├── Connectome-Enriched Spatio-Temporal Mamba-BiLSTM Classifier
+        ├── 5-Fold Stratified Cross-Validation & Out-of-Fold (OOF) Evaluation
+        └── Connectome topological biomarker mapping across functional brain hubs
+```
 
 ---
 
@@ -81,23 +114,45 @@ The evaluation suite automatically produces six publication-ready figures in bot
 
 ```
 mamba_bilstm_scz/
-├── config.py                 # Hyperparameter configuration dataclass
-├── dataset_sliding_window.py # Sliding-window BOLD dataset loader and augmentations
-├── mamba_bilstm_temporal.py  # Temporal Mamba SSM and BiLSTM modules
-├── models.py                 # Full hybrid classifier architecture
-├── train.py                  # 5-fold cross-validation training pipeline
-├── visualize_results.py      # Publication figure generator and metrics evaluator
-├── run.sh                    # Automated pipeline execution script
-├── run_viz.sh                # Visualization reproduction script
-├── pyproject.toml            # Project metadata and uv dependency configuration
-├── requirements.txt          # Standard pip dependencies
-├── checkpoints/              # Trained 5-fold model weights (*.pt)
+├── config.py                             # Hyperparameter configuration dataclass
+├── dataset_sliding_window.py             # Sliding-window BOLD dataset loader and augmentations
+├── mamba_bilstm_temporal.py              # Temporal Mamba SSM and BiLSTM modules
+├── models.py                             # Full hybrid classifier architecture
+├── train.py                              # 5-fold cross-validation training pipeline
+├── visualize_results.py                  # Publication figure generator and metrics evaluator
+├── run.sh                                # Automated pipeline execution script
+├── run_viz.sh                            # Visualization reproduction script
+├── run_recovery.sh                       # Dedicated fold-recovery execution script
+├── pyproject.toml                        # Project metadata and uv dependency configuration
+├── requirements.txt                      # Standard pip dependencies
+├── checkpoints/                          # Trained 5-fold model weights (*.pt)
+│   ├── mamba_bilstm_fold_1_best.pt
+│   ├── mamba_bilstm_fold_2_best.pt
+│   ├── mamba_bilstm_fold_3_best.pt
+│   ├── mamba_bilstm_fold_4_best.pt
+│   └── mamba_bilstm_fold_5_best.pt
 ├── results/
-│   ├── cv_metrics.json       # Quantitative performance results
-│   ├── summary.txt           # Summary metrics report
-│   └── figures/              # Publication figures (.pdf / .png)
-└── logs/
-    └── run_latest.log        # Full benchmark training log
+│   ├── cv_metrics.json                   # Quantitative performance results
+│   ├── summary.txt                       # Summary metrics report
+│   └── figures/                          # Publication figures (.pdf / .png)
+├── logs/
+│   └── run_latest.log                    # Full benchmark training log
+│
+├── preprocessing/                        # Stage 1: HPC Raw Data Preprocessing
+│   ├── PreProcessMultiSub.sh             # NUMA-aware parallel fMRIPrep execution script
+│   ├── monitor_progress.sh               # Real-time subject processing monitor
+│   └── run_quality_analysis.sh           # Batch quality analysis runner
+│
+├── postprocessing/                       # Stage 2: Nuisance Denoising & Parcellation
+│   ├── postprocess_fmri.py               # Serial postprocessing and Schaefer-200 extraction
+│   ├── postprocess_fmri_parallel.py      # High-throughput parallelized multi-core pipeline
+│   └── run_postprocessing_parallel_tmux.sh # Unattended background execution via tmux
+│
+└── quality_assurance/                   # Stage 3: Quantitative QC & Signal Diagnostics
+    ├── signal_quality_metrics.py         # Temporal SNR, spatial SNR, and FD/DVARS metrics
+    ├── fmri_quality_metrics.py          # Comprehensive voxel/parcel quality evaluation
+    ├── advanced_visualizations.py        # Diagnostic carpet plots and multi-panel figures
+    └── generate_plots.py                 # Statistical distribution and QC reporting plots
 ```
 
 ---
@@ -134,31 +189,68 @@ pip install -r requirements.txt
 
 ---
 
-## Reproducing Results
+## Pipeline Execution Guide
 
-### 1. Training & Cross-Validation
+### 1. Preprocessing (fMRIPrep HPC Cluster)
 
-To execute the 5-fold cross-validation pipeline:
+To execute parallelized preprocessing on a multi-core NUMA server:
+
+```bash
+cd preprocessing
+bash PreProcessMultiSub.sh
+
+# In a separate terminal, monitor progress:
+bash monitor_progress.sh
+```
+
+### 2. Signal Quality Assurance
+
+To compute spatial and temporal SNR alongside motion profiles (FD and DVARS):
+
+```bash
+cd quality_assurance
+python signal_quality_metrics.py
+python fmri_quality_metrics.py
+python advanced_visualizations.py
+```
+
+### 3. Postprocessing & Schaefer-200 Parcellation
+
+To perform 24-parameter motion regression, aCompCor, cosine high-pass filtering, and extract parcel timeseries:
+
+```bash
+cd postprocessing
+# High-throughput parallel execution via tmux:
+bash run_postprocessing_parallel_tmux.sh
+
+# Or run directly via Python:
+python postprocess_fmri_parallel.py
+```
+
+### 4. Deep Learning Training & Cross-Validation
+
+To train the 5-fold cross-validation Mamba-BiLSTM models on the extracted parcel timeseries:
 
 ```bash
 # Using the shell script:
 bash run.sh
 
-# Or using uv:
+# Or with uv:
 uv run python train.py
 
 # Or directly with Python:
 python train.py
 ```
 
-### 2. Generating Publication Visualizations
+### 5. Publication Visualizations & Biomarkers
 
-To reproduce all publication figures from cross-validation predictions:
+To reproduce all 6 publication figures and connectome biomarker rankings:
 
 ```bash
 bash run_viz.sh
-# Or:
-uv run python visualize_results.py
+
+# Or directly with Python:
+python visualize_results.py
 ```
 
 ---
@@ -187,7 +279,6 @@ focal_loss_gamma = 1.5          # Focal loss focusing parameter
 ```
 
 ---
-
 
 ## License & Data Acknowledgments
 
