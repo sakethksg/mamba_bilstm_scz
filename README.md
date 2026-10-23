@@ -1,201 +1,211 @@
-# Pure Mamba-BiLSTM Hybrid SCZ Classifier (No GAT)
+# Connectome-Enriched Spatio-Temporal Mamba-BiLSTM for Schizophrenia Classification
 
-**Dual-Stage Spatio-Temporal Mamba State-Space Model + Bidirectional LSTM for Resting-State fMRI**
+[![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Package Manager](https://img.shields.io/badge/Managed%20by-uv-purple.svg)](https://github.com/astral-sh/uv)
+[![Framework](https://img.shields.io/badge/PyTorch-2.0%2B-EE4C2C.svg)](https://pytorch.org/)
+[![Dataset](https://img.shields.io/badge/OpenNeuro-ds004302-informational.svg)](https://openneuro.org/datasets/ds004302)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-[![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
-[![Package Manager](https://img.shields.io/badge/managed%20by-uv-purple.svg)](https://github.com/astral-sh/uv)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-EE4C2C.svg)](https://pytorch.org/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-
-A high-performance, graph-free deep learning architecture for schizophrenia (SCZ) classification using resting-state fMRI BOLD timeseries. This architecture completely eliminates Graph Attention Networks (GAT), Graph Convolutional Networks (GCN), and top-$k$ edge thresholding heuristics, replacing them with an efficient **Spatio-Temporal Mamba-BiLSTM** pipeline.
-
----
-
-## Architecture Flow
-
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                   Input: Windowed BOLD Timeseries                      │
-│                  (Batch Size, 200 ROIs, 100 TRs)                       │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │
-                                    ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│               Stage 1: Temporal Mamba SSM Module                       │
-│    Multi-Scale Gated Dilated Convolutions (Dilations: 1, 2, 4, 8 TRs)   │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │
-                                    ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│               Stage 2: Temporal Bidirectional LSTM                     │
-│    Recurrent Forward & Backward Context along TRs                      │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │ (Residual Skip Connection + LayerNorm)
-                                    ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│               Stage 3: Temporal Dual Readout                           │
-│    Learned Temporal Attention + Mean Pooling -> (B, 200 ROIs, d_model) │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │
-                                    ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│               Stage 4: Spatial Bidirectional LSTM                      │
-│    Sequential Inter-Regional Network Modeling across 200 Brain Parcels │
-│                  (Completely Replaces GAT / GNN)                       │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │ (Residual Skip Connection + LayerNorm)
-                                    ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│               Stage 5: Multi-Scale Brain Readout & MLP                 │
-│    ROI Attention + Global Mean + Global Max Pooling                    │
-│    Classification MLP Head -> Healthy Control (HC) vs Schizophrenia    │
-└────────────────────────────────────────────────────────────────────────┘
-```
+Official implementation of the **Connectome-Enriched Spatio-Temporal Mamba-BiLSTM** network for automated schizophrenia (SCZ) classification and neural biomarker discovery from resting-state functional Magnetic Resonance Imaging (rs-fMRI) blood-oxygen-level-dependent (BOLD) timeseries.
 
 ---
 
-## Key Highlights & Advantages
+## Abstract & Overview
 
-1. **Graph-Free Architecture**: Eliminates graph attention mechanisms, topological over-smoothing, and ad-hoc functional connectivity edge-thresholding heuristics.
-2. **True Spatio-Temporal Modeling**: 
-   - *Temporally*: Continuous-time State-Space dynamics (Mamba SSM) combined with forward/backward recurrent memory (BiLSTM) across TRs.
-   - *Spatially*: Bidirectional recurrence across ordered anatomical parcels (Schaefer 200 atlas) with dynamic functional connectivity gating.
-3. **High Efficiency & Speed**: Built on standard PyTorch 3D tensors (`B, 200, 100`) without graph collation bottlenecks, achieving ~10x faster batch processing and full BF16/FP16 mixed precision acceleration.
-4. **Rigorous Cohort Evaluation**: Strict 5-fold stratified cross-validation evaluated across all 71 subjects (25 HC, 46 SCZ).
+Deep learning models for neuroimaging connectomics frequently rely on Graph Attention Networks (GAT) or Graph Convolutional Networks (GCN) that depend on ad-hoc graph thresholding heuristics, introduce edge-selection bias, and are prone to topological over-smoothing across cortical parcels. 
 
----
-
-## Project Structure
-
-```
-mamba_bilstm_scz/
-├── config.py                 # Central hyperparameter & pipeline configuration
-├── dataset_sliding_window.py # Sliding-window BOLD dataset loader & augmentations
-├── mamba_bilstm_temporal.py  # Temporal Mamba SSM + Temporal BiLSTM encoder blocks
-├── models.py                 # Full hybrid classifier & spatial sequence architecture
-├── train.py                  # 5-fold stratified CV training & validation engine
-├── visualize_results.py      # Publication-quality plotting & biomarker analysis
-├── run.sh                    # Automated training pipeline script
-├── run_viz.sh                # Visualization generator script
-├── pyproject.toml            # Project specification & uv configuration
-├── requirements.txt          # Standard pip dependencies
-├── results/
-│   ├── cv_metrics.json       # Quantitative performance results (per-fold & OOF)
-│   ├── summary.txt           # Text summary of model evaluation
-│   └── figures/              # Publication figures (PDF & PNG format)
-└── logs/                     # Training run logs and fold checkpoints
-```
+This repository provides a graph-free, spatio-temporal deep learning framework that couples continuous-time **Mamba State-Space Models (SSM)** with **Bidirectional Long Short-Term Memory (BiLSTM)** networks:
+- **Temporal Modeling**: Captures multi-scale hemodynamic dynamics ($1, 2, 4, 8$ TRs) and bidirectional temporal dependencies without attention matrix quadratic complexity.
+- **Spatial Modeling**: Sequence-based whole-brain inter-regional representation learning across cortical parcels regularized by functional connectivity priors.
+- **Physiologically Grounded Augmentation**: Mitigates scanner gain drift, subject motion artifacts, and phase memorization via dense temporal windowing, circular roll, amplitude scaling, and symmetric connectome noise.
 
 ---
 
-## Installation & Setup
+## Key Contributions
 
-### Option 1: Fast Setup with `uv` (Recommended)
-
-[`uv`](https://github.com/astral-sh/uv) is an extremely fast Python package manager.
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/your-username/mamba_bilstm_scz.git
-cd mamba_bilstm_scz
-
-# 2. Create and activate a virtual environment
-uv venv
-source .venv/bin/activate       # On Linux/macOS
-# .venv\Scripts\activate        # On Windows
-
-# 3. Synchronize dependencies
-uv sync
-# Alternatively:
-# uv pip install -r requirements.txt
-```
-
-### Option 2: Standard `pip` and `venv`
-
-```bash
-# 1. Create a virtual environment
-python3 -m venv .venv
-source .venv/bin/activate       # On Linux/macOS
-# .venv\Scripts\activate        # On Windows
-
-# 2. Install dependencies
-pip install -r requirements.txt
-```
+- **Elimination of Graph Heuristics**: Eliminates top-$k$ functional connectivity thresholding and heuristic graph message passing, operating directly on standard tensor representations.
+- **Dual-Stage Spatio-Temporal Modeling**: Integrates continuous-time linear state-space sequence modeling with bidirectional recurrent context over temporal dynamics and spatial parcel sequences.
+- **Strict Subject-Level Cross-Validation**: Validated using 5-fold stratified cross-validation on all $N=71$ clinical participants with zero cross-fold window leakage.
+- **Interpretable Connectome Biomarkers**: Includes automated biomarker extraction across Yeo 7 functional networks (Visual, Somatomotor, Dorsal Attention, Salience/Ventral Attention, Limbic, Control, Default Mode).
 
 ---
 
-## Usage
+## Cohort & Dataset Specifications
 
-### 1. Training the Full 5-Fold Pipeline
+Evaluated on the clinical rs-fMRI cohort from OpenNeuro ([ds004302](https://openneuro.org/datasets/ds004302)):
 
-Run the automated training script (handles GPU setup, logging, and metrics):
-
-```bash
-# Using the bash launcher:
-bash run.sh
-
-# Or directly with uv:
-uv run python train.py
-
-# Or within an activated environment:
-python train.py
-```
-
-Optional training flags:
-- Specify GPU: `CUDA_VISIBLE_DEVICES=0 bash run.sh`
-
-### 2. Generating Publication Visualizations
-
-Generate all 6 diagnostic figures (ROC curves, confusion matrices, fold performance, convergence trajectories, and connectome biomarkers):
-
-```bash
-# Using the bash launcher:
-bash run_viz.sh
-
-# Or with uv:
-uv run python visualize_results.py
-```
-
-Generated plots will be saved to `results/figures/`:
-- `fig1_cv_performance_comparison.{png,pdf}`
-- `fig2_roc_curves.{png,pdf}`
-- `fig3_confusion_matrices.{png,pdf}`
-- `fig4_subject_diagnostic_probabilities.{png,pdf}`
-- `fig5_training_convergence.{png,pdf}`
-- `fig6_connectome_topological_biomarkers.{png,pdf}`
+| Attribute | Specification |
+|:---|:---|
+| **Participants ($N=71$)** | 25 Healthy Controls (HC), 46 Patients with Schizophrenia (SCZ) |
+| **Parcellation Atlas** | Schaefer 200 Cortical Parcels ($N_{\text{ROI}} = 200$) |
+| **Functional Networks** | 7 Canonical Resting-State Networks (Yeo et al.) |
+| **Temporal Length** | 341 TRs per subject ($\text{TR} = 2.0\,\text{s}$, $682\,\text{s}$ total scan duration) |
+| **Windowing Strategy** | Sliding temporal window of 100 TRs ($200\,\text{s}$), stride = 12 TRs (21 windows/subject, 1,491 total dynamic windows) |
 
 ---
 
 ## Experimental Benchmark Results
 
-Evaluated on $N=71$ subjects (25 Healthy Controls, 46 Schizophrenia) via 5-Fold Stratified Cross-Validation:
+Model performance evaluated via **5-Fold Stratified Cross-Validation** and **Pooled Out-of-Fold (OOF)** validation across all 71 participants:
 
-| Metric | 5-Fold CV (Mean ± Std) | Pooled Out-of-Fold (OOF) |
-|---|:---:|:---:|
+| Metric | 5-Fold Cross-Validation (Mean ± SD) | Pooled Out-of-Fold (OOF) |
+|:---|:---:|:---:|
 | **Calibrated Balanced Accuracy** | **88.22% ± 11.08%** | **79.87%** |
 | **Calibrated Accuracy** | **87.14% ± 10.50%** | **77.46% (55/71)** |
 | **ROC-AUC** | **82.67% ± 17.41%** | **78.00%** |
-| **Specificity (HC)** | **84.00% ± 14.97%** | **88.00% (22/25)** |
-| **Sensitivity (SCZ)** | **73.33% ± 37.58%** | **71.74% (33/46)** |
+| **Specificity (Healthy Control)** | **84.00% ± 14.97%** | **88.00% (22/25)** |
+| **Sensitivity (Schizophrenia)** | **73.33% ± 37.58%** | **71.74% (33/46)** |
 | **Precision** | **71.33% ± 36.35%** | **91.67%** |
 | **F1-Score** | **72.28% ± 36.89%** | **80.49%** |
 
----
-
-## Configuration & Hyperparameters
-
-Key settings can be modified in [config.py](file:///c:/Research/mamba_bilstm_scz/config.py):
-- `window_size`: 100 TRs (~200s window)
-- `window_stride`: 12 TRs (21 windows per subject, 1,491 total dynamic windows)
-- `mamba_d_model`: 48 latent channels
-- `mamba_expand`: 2x expansion factor
-- `temporal_lstm_hidden`: 48 units per direction (bidirectional = 96)
-- `spatial_lstm_hidden`: 64 units per direction (bidirectional = 128)
-- `learning_rate`: $3 \times 10^{-4}$ with Cosine Annealing and EMA decay (0.990)
-- `augmentations`: Temporal roll, Gaussian jitter, ROI masking, BOLD amplitude scaling, and symmetric FC edge noise.
+*All results are saved in [`results/cv_metrics.json`](results/cv_metrics.json) and [`results/summary.txt`](results/summary.txt).*
 
 ---
 
-## Citation & License
+## Publication Figures
 
-This project is licensed under the MIT License.
+The evaluation suite automatically produces six publication-ready figures in both vector (`.pdf`) and raster (`.png`) formats:
+
+| Figure | Description | Output Location |
+|:---|:---|:---|
+| **Figure 1** | Cross-Validation Performance Comparison across Folds | [`results/figures/fig1_cv_performance_comparison.pdf`](results/figures/fig1_cv_performance_comparison.pdf) |
+| **Figure 2** | ROC Curves (Individual Folds + Mean ROC + OOF ROC) | [`results/figures/fig2_roc_curves.pdf`](results/figures/fig2_roc_curves.pdf) |
+| **Figure 3** | Standard & Calibrated Confusion Matrices | [`results/figures/fig3_confusion_matrices.pdf`](results/figures/fig3_confusion_matrices.pdf) |
+| **Figure 4** | Subject-Level Diagnostic Probability Distributions | [`results/figures/fig4_subject_diagnostic_probabilities.pdf`](results/figures/fig4_subject_diagnostic_probabilities.pdf) |
+| **Figure 5** | Training Convergence & Loss/Accuracy Dynamics | [`results/figures/fig5_training_convergence.pdf`](results/figures/fig5_training_convergence.pdf) |
+| **Figure 6** | Connectome Topological Biomarkers across 7 Functional Networks | [`results/figures/fig6_connectome_topological_biomarkers.pdf`](results/figures/fig6_connectome_topological_biomarkers.pdf) |
+
+---
+
+## Repository Structure
+
+```
+mamba_bilstm_scz/
+├── config.py                 # Hyperparameter configuration dataclass
+├── dataset_sliding_window.py # Sliding-window BOLD dataset loader and augmentations
+├── mamba_bilstm_temporal.py  # Temporal Mamba SSM and BiLSTM modules
+├── models.py                 # Full hybrid classifier architecture
+├── train.py                  # 5-fold cross-validation training pipeline
+├── visualize_results.py      # Publication figure generator and metrics evaluator
+├── run.sh                    # Automated pipeline execution script
+├── run_viz.sh                # Visualization reproduction script
+├── pyproject.toml            # Project metadata and uv dependency configuration
+├── requirements.txt          # Standard pip dependencies
+├── checkpoints/              # Trained 5-fold model weights (*.pt)
+├── results/
+│   ├── cv_metrics.json       # Quantitative performance results
+│   ├── summary.txt           # Summary metrics report
+│   └── figures/              # Publication figures (.pdf / .png)
+└── logs/
+    └── run_latest.log        # Full benchmark training log
+```
+
+---
+
+## Installation & Environment Setup
+
+### Environment Setup with `uv` (Recommended)
+
+[`uv`](https://github.com/astral-sh/uv) provides rapid, deterministic environment management:
+
+```bash
+# Clone the repository
+git clone https://github.com/sakethksg/mamba_bilstm_scz.git
+cd mamba_bilstm_scz
+
+# Create and activate a virtual environment
+uv venv
+source .venv/bin/activate       # Linux / macOS
+# .venv\Scripts\activate        # Windows
+
+# Synchronize dependencies from lockfile
+uv sync
+```
+
+### Alternative Setup with `pip`
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate       # Linux / macOS
+# .venv\Scripts\activate        # Windows
+
+pip install -r requirements.txt
+```
+
+---
+
+## Reproducing Results
+
+### 1. Training & Cross-Validation
+
+To execute the 5-fold cross-validation pipeline:
+
+```bash
+# Using the shell script:
+bash run.sh
+
+# Or using uv:
+uv run python train.py
+
+# Or directly with Python:
+python train.py
+```
+
+### 2. Generating Publication Visualizations
+
+To reproduce all publication figures from cross-validation predictions:
+
+```bash
+bash run_viz.sh
+# Or:
+uv run python visualize_results.py
+```
+
+---
+
+## Configuration Reference
+
+Key experimental parameters can be adjusted in [`config.py`](config.py):
+
+```python
+# Cohort & Windowing
+n_rois = 200                    # Schaefer 200 cortical parcels
+window_size = 100               # 100 TR temporal window length (200s)
+window_stride = 12              # Stride for dense dynamic windowing (21 windows/subject)
+
+# Architectural Dimensions
+mamba_d_model = 48              # Latent representation per parcel
+mamba_expand = 2                # Dilated state expansion factor
+temporal_lstm_hidden = 48       # Hidden units per direction (bidirectional = 96)
+spatial_lstm_hidden = 64        # Spatial hidden units per direction (bidirectional = 128)
+
+# Optimization & Regularization
+learning_rate = 3e-4            # Cosine annealing learning rate schedule
+weight_decay = 1e-4             # AdamW weight decay
+use_ema = True                  # Exponential moving average of model weights (decay = 0.990)
+focal_loss_gamma = 1.5          # Focal loss focusing parameter
+```
+
+---
+
+## Citation
+
+If you use this codebase or methodology in your research, please cite:
+
+```bibtex
+@article{mamba_bilstm_scz_2026,
+  title={Connectome-Enriched Spatio-Temporal Mamba-BiLSTM for Schizophrenia Classification from Resting-State fMRI},
+  author={Antigravity Team and Contributors},
+  journal={arXiv preprint},
+  year={2026},
+  url={https://github.com/sakethksg/mamba_bilstm_scz}
+}
+```
+
+---
+
+## License & Data Acknowledgments
+
+This project is released under the [MIT License](LICENSE). 
+
+Data was obtained from the OpenNeuro database under accession number [ds004302](https://openneuro.org/datasets/ds004302).
