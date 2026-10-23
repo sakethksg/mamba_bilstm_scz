@@ -1,0 +1,30 @@
+
+================================================================================
+ ENHANCED AUGMENTATION MAMBA-BiLSTM BENCHMARK (All Subjects N=71)
+================================================================================
+ Architecture: Temporal Mamba SSM + Temporal BiLSTM + Gated dFC + Spatial BiLSTM (NO GAT)
+ Total Pipeline Training Time: 4875.7s (81.26 min)
+
+ ─── 5-Fold Cross-Validation Metrics (Mean ± Std) ───
+ • Subject Standard Accuracy: 0.7714 ± 0.2277
+ • Subject Balanced Accuracy: 0.7867 ± 0.1752
+ • Subject ROC-AUC          : 0.8267 ± 0.1741
+ • Subject Specificity (HC) : 0.8400 ± 0.1497
+ • Subject Sensitivity (SCZ): 0.7333 ± 0.3758
+ • Subject Precision        : 0.7133 ± 0.3635
+ • Subject F1-Score         : 0.7228 ± 0.3689
+ • Calibrated Accuracy      : 0.8714 ± 0.1050
+ • Calibrated Balanced Acc  : 0.8822 ± 0.1108
+
+ ─── Pooled Out-of-Fold (OOF) Cohort Evaluation (N=71) ───
+ • Standard Thresh (0.5) Acc: 0.7746 (55/71)
+ • Standard Thresh (0.5) Bal: 0.7896
+ • Overall OOF ROC-AUC      : 0.7800
+ • Optimal Operating Thresh : 0.5683
+ • Calibrated OOF Accuracy  : 0.7746 (55/71)
+ • Calibrated OOF Bal Acc   : 0.7987
+ • Calibrated Specificity   : 0.8800 (22/25 HC)
+ • Calibrated Sensitivity   : 0.7174 (33/46 SCZ)
+ • Calibrated Precision     : 0.9167
+ • Calibrated F1-Score      : 0.8049
+================================================================================
