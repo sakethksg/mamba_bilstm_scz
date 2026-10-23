@@ -109,3 +109,14 @@ data/
 # Literature & reference exports
 SZ PJT/
 SZ Literature/
+
+# Research paper & manuscript files (ignore LaTeX source & manuscript, keep figures visible)
+paper/*
+!paper/figures/
+!paper/figures/**
+*.aux
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex.gz

@@ -97,16 +97,47 @@ Model performance evaluated via **5-Fold Stratified Cross-Validation** and **Poo
 
 ## Publication Figures
 
-The evaluation suite automatically produces six publication-ready figures in both vector (`.pdf`) and raster (`.png`) formats:
+The evaluation suite produces six publication-ready figures in both vector (`.pdf`) and high-resolution raster (`.png`) formats:
 
-| Figure | Description | Output Location |
-|:---|:---|:---|
-| **Figure 1** | Cross-Validation Performance Comparison across Folds | [`results/figures/fig1_cv_performance_comparison.pdf`](results/figures/fig1_cv_performance_comparison.pdf) |
-| **Figure 2** | ROC Curves (Individual Folds + Mean ROC + OOF ROC) | [`results/figures/fig2_roc_curves.pdf`](results/figures/fig2_roc_curves.pdf) |
-| **Figure 3** | Standard & Calibrated Confusion Matrices | [`results/figures/fig3_confusion_matrices.pdf`](results/figures/fig3_confusion_matrices.pdf) |
-| **Figure 4** | Subject-Level Diagnostic Probability Distributions | [`results/figures/fig4_subject_diagnostic_probabilities.pdf`](results/figures/fig4_subject_diagnostic_probabilities.pdf) |
-| **Figure 5** | Training Convergence & Loss/Accuracy Dynamics | [`results/figures/fig5_training_convergence.pdf`](results/figures/fig5_training_convergence.pdf) |
-| **Figure 6** | Connectome Topological Biomarkers across 7 Functional Networks | [`results/figures/fig6_connectome_topological_biomarkers.pdf`](results/figures/fig6_connectome_topological_biomarkers.pdf) |
+### Figure 1: 5-Fold Cross-Validation Performance Comparison
+![Figure 1: Cross-Validation Performance Comparison](results/figures/fig1_cv_performance_comparison.png)
+
+*Fold-by-fold and mean diagnostic performance (Balanced Accuracy, Standard Accuracy, Sensitivity, Specificity, ROC-AUC, and F1-Score) comparing default decision thresholds ($\tau=0.50$) against Youden's $J$ calibrated thresholds.*
+
+---
+
+### Figure 2: Receiver Operating Characteristic (ROC) & Precision-Recall Curves
+![Figure 2: ROC and Precision-Recall Curves](results/figures/fig2_roc_curves.png)
+
+*Fold-specific and aggregate ROC curves ($\text{Mean AUC} = 82.67\% \pm 17.41\%$) with 95% empirical confidence intervals, alongside Precision-Recall curves illustrating positive predictive stability.*
+
+---
+
+### Figure 3: Standard vs. Calibrated Confusion Matrices ($N=71$)
+![Figure 3: Confusion Matrices](results/figures/fig3_confusion_matrices.png)
+
+*Comparison of pooled out-of-fold confusion matrices under default $\tau=0.50$ (51/71 correct, 71.83% accuracy) versus optimal Youden's $J$ calibration ($\tau^* = 0.5683$, 55/71 correct, 77.46% accuracy, 88.00% specificity).*
+
+---
+
+### Figure 4: Subject-by-Subject Out-of-Fold Diagnostic Probabilities
+![Figure 4: Subject Diagnostic Probabilities](results/figures/fig4_subject_diagnostic_probabilities.png)
+
+*Diagnostic posterior probabilities $\hat{P}(\text{SCZ} \mid \mathbf{X})$ across all 25 Healthy Controls (blue circles) and 46 Schizophrenia patients (red squares), demonstrating clean separation and low false-positive rate (3/25).*
+
+---
+
+### Figure 5: Multi-Fold Training & Validation Convergence Dynamics
+![Figure 5: Training Convergence](results/figures/fig5_training_convergence.png)
+
+*Loss and balanced accuracy trajectories across 50 epochs for all cross-validation folds, demonstrating smooth, monotonic validation descent without divergent overfitting.*
+
+---
+
+### Figure 6: Connectome Topological Hub Reorganization in Schizophrenia
+![Figure 6: Connectome Topological Biomarkers](results/figures/fig6_connectome_topological_biomarkers.png)
+
+*Top cortical parcel degree shifts ($\Delta k$) and network-level dysconnectivity across the 7 Yeo functional networks, identifying pronounced hyper-connectivity in auditory-verbal circuits (Heschl's gyrus / STG) and the anterior insular salience hub.*
 
 ---
 
